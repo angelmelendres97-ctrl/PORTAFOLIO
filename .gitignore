@@ -6,3 +6,9 @@ npm-debug.log*
 .vscode
 frontend/node_modules
 backend/node_modules
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example

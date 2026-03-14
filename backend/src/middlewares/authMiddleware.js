@@ -1,21 +1,22 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/env');
 
-const authenticateToken = (req, res, next) => {
-  const header = req.headers.authorization || '';
-  const [, token] = header.split(' ');
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ message: 'Token no provisto' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token no proporcionado' });
   }
 
+  const token = authHeader.substring(7);
+
   try {
-    const payload = jwt.verify(token, config.jwtSecret);
-    req.user = payload;
-    return next();
+    const decoded = jwt.verify(token, config.jwtSecret);
+    req.user = decoded;
+    next();
   } catch (error) {
-    return res.status(401).json({ message: 'Token inválido' });
+    return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 };
 
-module.exports = authenticateToken;
+module.exports = authMiddleware;

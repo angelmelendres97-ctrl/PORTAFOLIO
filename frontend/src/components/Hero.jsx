@@ -1,13 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
+import GlobeEffect from './GlobeEffect.jsx';
 
 const Hero = ({ config }) => {
   const profileImage = config.profileImage || 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=600&q=80';
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-24">
-      <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 md:flex-row md:items-center">
+    <section className="relative overflow-hidden bg-slate-950 py-24">
+      <GlobeEffect />
+      <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-12 px-4 md:flex-row md:items-center">
         <div className="space-y-6 md:w-2/3">
           <motion.span
             initial={{ opacity: 0, y: 10 }}
@@ -21,7 +23,7 @@ const Hero = ({ config }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-4xl font-bold leading-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl"
+            className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl"
           >
             {config.heroTitle}
           </motion.h1>
@@ -29,7 +31,7 @@ const Hero = ({ config }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="max-w-2xl text-lg text-slate-600 dark:text-slate-300"
+            className="max-w-2xl text-lg text-slate-300"
           >
             {config.heroSubtitle}
           </motion.p>
@@ -45,7 +47,7 @@ const Hero = ({ config }) => {
                 href={config.resumeUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-lg border border-slate-300 dark:border-slate-700 px-5 py-2 text-sm font-semibold text-slate-700 dark:text-slate-100 transition hover:border-primary hover:text-primary"
+                className="rounded-lg border border-slate-700 px-5 py-2 text-sm font-semibold text-slate-100 transition hover:border-primary hover:text-primary"
               >
                 Descargar CV
               </a>
@@ -55,7 +57,7 @@ const Hero = ({ config }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="flex items-center gap-4 text-slate-500 dark:text-slate-400"
+            className="flex items-center gap-4 text-slate-400"
           >
             <span className="text-xs uppercase tracking-[0.3em]">Sígueme</span>
             <a href={config.githubUrl} target="_blank" rel="noreferrer" className="transition hover:text-primary">

@@ -1,18 +1,21 @@
 {
   "name": "agxport-notificaciones-backend",
-  "version": "0.1.0",
-  "description": "Backend API for the AGX Portfolio notification system.",
+  "version": "0.2.0",
+  "description": "Backend API for the AGX Portfolio notification system with PostgreSQL.",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "db:init": "node src/database/init.js",
+    "db:seed": "node src/database/seed.js",
     "lint": "echo 'No lint command configured'"
   },
   "keywords": [
     "portfolio",
     "express",
-    "api"
+    "api",
+    "postgresql"
   ],
   "author": "",
   "license": "MIT",
@@ -24,6 +27,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "pg": "^8.11.3",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

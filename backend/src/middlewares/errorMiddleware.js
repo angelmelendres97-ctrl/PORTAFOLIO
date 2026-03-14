@@ -1,18 +1,13 @@
-const config = require('../config/env');
-
-// eslint-disable-next-line no-unused-vars
 const errorMiddleware = (err, req, res, next) => {
+  console.error('Error:', err);
+
   const status = err.status || 500;
   const message = err.message || 'Error interno del servidor';
-  const payload = {
-    message
-  };
 
-  if (config.nodeEnv !== 'production') {
-    payload.stack = err.stack;
-  }
-
-  return res.status(status).json(payload);
+  res.status(status).json({
+    error: message,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
 };
 
 module.exports = errorMiddleware;

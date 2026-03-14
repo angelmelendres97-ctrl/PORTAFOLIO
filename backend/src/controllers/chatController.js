@@ -1,30 +1,30 @@
-const { validationResult } = require('express-validator');
 const chatService = require('../services/chatService');
 
-const listMessages = async (req, res, next) => {
+const getMessages = async (req, res, next) => {
   try {
     const messages = await chatService.getMessages();
-    return res.json(messages);
+    res.json(messages);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
-const createMessage = async (req, res, next) => {
+const addMessage = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+    const { name, email, message } = req.body;
+    
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: 'name, email y message son requeridos' });
     }
 
-    const message = await chatService.addMessage(req.body);
-    return res.status(201).json(message);
+    const newMessage = await chatService.addMessage({ name, email, message });
+    res.status(201).json(newMessage);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 module.exports = {
-  listMessages,
-  createMessage
+  getMessages,
+  addMessage
 };

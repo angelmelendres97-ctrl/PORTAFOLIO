@@ -1,16 +1,19 @@
 const { v4: uuid } = require('uuid');
-const { hasValidSupabaseConfig, supabaseFetch } = require('../utils/supabaseClient');
-const { chatMessages } = require('../models/inMemoryStore');
-const config = require('../config/env');
+const { query } = require('../database/pool');
 
-const selectClause = 'id,name,email,message,createdAt';
+const normalizeMessage = (message) => ({
+  id: message.id,
+  name: message.name,
+  email: message.email,
+  message: message.message,
+  createdAt: message.created_at
+});
 
 const getMessages = async () => {
-  if (!hasValidSupabaseConfig()) {
-    return chatMessages;
-  }
-
-  return supabaseFetch(`${config.supabase.chatTable}?order=createdAt.desc&select=${selectClause}`);
+  const result = await query(
+    'SELECT id, name, email, message, created_at FROM chat_messages ORDER BY created_at DESC'
+  );
+  return result.rows.map(normalizeMessage);
 };
 
 const addMessage = async ({ name, email, message }) => {
@@ -19,20 +22,17 @@ const addMessage = async ({ name, email, message }) => {
     name,
     email,
     message,
-    createdAt: new Date().toISOString()
+    createdAt: new Date()
   };
 
-  if (!hasValidSupabaseConfig()) {
-    chatMessages.unshift(newMessage);
-    return newMessage;
-  }
+  const result = await query(
+    `INSERT INTO chat_messages (id, name, email, message, created_at)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id, name, email, message, created_at`,
+    [newMessage.id, newMessage.name, newMessage.email, newMessage.message, newMessage.createdAt]
+  );
 
-  const inserted = await supabaseFetch(config.supabase.chatTable, {
-    method: 'POST',
-    body: JSON.stringify([newMessage])
-  });
-
-  return inserted?.[0] || newMessage;
+  return normalizeMessage(result.rows[0]);
 };
 
 module.exports = {

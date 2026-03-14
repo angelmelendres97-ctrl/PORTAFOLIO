@@ -1,22 +1,26 @@
-# AGX Portfolio – Plataforma Integral de Portafolio
+# Angel Melendres - Portafolio Profesional
 
-Proyecto monorepo que reúne el frontend (React) y el backend (Node.js + Express) de un portafolio profesional orientado a mostrar proyectos de software y administrar el contenido desde un panel privado.
+Proyecto monorepo que reúne el frontend (React + Vite) y el backend (Node.js + Express) de un portafolio profesional orientado a mostrar proyectos de software y administrar el contenido desde un panel privado.
 
-## 🚀 Objetivos
+## 🚀 Características
 
-- Presentar información profesional, proyectos destacados y medios de contacto.
-- Permitir la gestión de proyectos, configuración del sitio y mensajes de chat desde un panel seguro.
-- Integrar autenticación basada en JWT y PostgreSQL para persistencia.
+- **Frontend**: React + Vite con Tailwind CSS
+- **Backend**: Node.js + Express con PostgreSQL
+- **Autenticación**: JWT para el panel de administración
+- **Modo Oscuro/Claro**: Tema adaptativo
+- **Efectos Visuales**: Animación Vanta Globe en el Hero
+- **Editor de Texto**: React Quill para descripciones detalladas
+- **Gestión de Proyectos**: Imagen de portada y galería
+- **Chat/Mensajes**: Sistema de contacto desde el portafolio
 
-## 🗂️ Estructura del repositorio
+## 🗂️ Estructura del Repositorio
 
-```text
+```
 /
-├── Backend2/           # API REST Express (PostgreSQL)
-├── backend/            # API REST Express (Supabase - legacy)
-├── frontend/           # Aplicación React + Vite
-├── docker-compose.yml  # Orquestación Docker
-└── README.md           # Este documento
+├── backend/           # API REST Express (PostgreSQL)
+├── frontend/         # Aplicación React + Vite
+├── docker-compose.yml # Orquestación Docker
+└── README.md         # Este documento
 ```
 
 ## 🐳 Docker Deployment
@@ -33,26 +37,26 @@ Proyecto monorepo que reúne el frontend (React) y el backend (Node.js + Express
 
 ```bash
 # Iniciar todos los servicios
-docker-compose up -d
+docker compose up -d
 
 # Ver logs
-docker-compose logs -f
+docker compose logs -f
 
 # Detener servicios
-docker-compose down
+docker compose down
 ```
 
 ### Comandos Útiles
 
 ```bash
 # Iniciar en foreground (ver logs)
-docker-compose up
+docker compose up
 
 # Reconstruir imágenes
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # Ver estado de servicios
-docker-compose ps
+docker compose ps
 
 # Acceder a terminal del backend
 docker exec -it agxport-backend sh
@@ -60,10 +64,11 @@ docker exec -it agxport-backend sh
 # Acceder a PostgreSQL
 docker exec -it agxport-postgres psql -U postgres -d agxport
 
-# Ver logs de un servicio
-docker-compose logs backend
-docker-compose logs frontend
-docker-compose logs postgres
+# Inicializar base de datos
+docker exec -it agxport-backend npm run db:init
+
+# Insertar datos de ejemplo
+docker exec -it agxport-backend npm run db:seed
 ```
 
 ## 🛠️ Configuración
@@ -87,60 +92,21 @@ docker-compose logs postgres
 #### Frontend
 - `VITE_API_URL`: http://localhost:4000/api
 
-## 🧱 Arquitectura
-
-```mermaid
-flowchart LR
-  Visitor[Visitante] -->|HTTP| Frontend[Frontend React]
-  Admin[Administrador] -->|HTTP + JWT| Frontend
-  Frontend -->|REST| Backend[API Express]
-  Backend -->|SQL| PostgreSQL[(PostgreSQL)]
-```
-
-## 🔐 Flujo de Autenticación
-
-```mermaid
-sequenceDiagram
-  participant Admin
-  participant Frontend
-  participant Backend
-
-  Admin->>Frontend: Envía credenciales
-  Frontend->>Backend: POST /api/auth/login
-  Backend-->>Frontend: JWT + datos de usuario
-  Frontend->>Frontend: Guarda token en localStorage
-  Frontend->>Backend: Request protegida con header Authorization
-  Backend-->>Frontend: Respuesta autorizada
-```
-
-## 🧩 Casos de Uso
-
-```mermaid
-usecaseDiagram
-  actor Visitante
-  actor Administrador
-  Visitante -- (Consultar proyectos)
-  Visitante -- (Enviar mensaje de chat)
-  Visitante -- (Ver información del autor)
-  Administrador -- (Iniciar sesión)
-  Administrador -- (Gestionar proyectos)
-  Administrador -- (Actualizar configuración)
-  Administrador -- (Revisar mensajes)
-```
-
 ## 🌐 Endpoints
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
-| POST | `/api/auth/login` | Inicia sesión y devuelve token JWT. |
-| GET | `/api/projects` | Lista pública de proyectos. |
-| POST | `/api/projects` | Crea proyecto (requiere token). |
-| PUT | `/api/projects/:id` | Actualiza proyecto (requiere token). |
-| DELETE | `/api/projects/:id` | Elimina proyecto (requiere token). |
-| GET | `/api/config` | Recupera configuración pública. |
-| PUT | `/api/config` | Actualiza configuración (requiere token). |
-| GET | `/api/chat` | Mensajes recibidos (requiere token). |
-| POST | `/api/chat` | Envía mensaje desde el sitio público. |
+| POST | `/api/auth/login` | Inicia sesión y devuelve token JWT |
+| GET | `/api/projects` | Lista pública de proyectos |
+| GET | `/api/projects/:id` | Obtiene un proyecto por ID |
+| POST | `/api/projects` | Crea proyecto (requiere token) |
+| PUT | `/api/projects/:id` | Actualiza proyecto (requiere token) |
+| DELETE | `/api/projects/:id` | Elimina proyecto (requiere token) |
+| GET | `/api/config` | Recupera configuración pública |
+| PUT | `/api/config` | Actualiza configuración (requiere token) |
+| GET | `/api/chat` | Mensajes recibidos (requiere token) |
+| POST | `/api/chat` | Envía mensaje desde el sitio público |
+| GET | `/api/health` | Verificación de estado del servidor |
 
 ## 🗃️ Modelo de Datos (PostgreSQL)
 
@@ -150,6 +116,7 @@ id UUID PRIMARY KEY,
 title VARCHAR(255),
 summary TEXT,
 description TEXT,
+detailed_description TEXT,
 technologies TEXT[],
 repository_url VARCHAR(500),
 demo_url VARCHAR(500),
@@ -163,6 +130,7 @@ id UUID PRIMARY KEY,
 hero_title VARCHAR(255),
 hero_subtitle TEXT,
 about TEXT,
+profile_image TEXT,
 contact_email VARCHAR(255),
 whatsapp_number VARCHAR(50),
 github_url VARCHAR(500),
@@ -181,7 +149,7 @@ created_at TIMESTAMP
 
 ### Backend
 ```bash
-cd Backend2
+cd backend
 cp .env.example .env
 npm install
 npm run db:init
@@ -195,6 +163,11 @@ cp .env.example .env
 npm install
 npm run dev
 ```
+
+## 🔐 Credenciales de Administrador
+
+- **Email**: admin@example.com
+- **Password**: changeme123
 
 ---
 

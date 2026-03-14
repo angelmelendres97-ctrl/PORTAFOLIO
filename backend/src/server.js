@@ -1,16 +1,20 @@
 const app = require('./app');
 const config = require('./config/env');
+const { pool } = require('./database/pool');
 
-const server = app.listen(config.port, () => {
-  console.log(`API escuchando en http://localhost:${config.port}`);
-});
+async function startServer() {
+  try {
+    await pool.query('SELECT NOW()');
+    console.log('Connected to PostgreSQL database');
 
-const shutdown = () => {
-  console.log('Cerrando servidor...');
-  server.close(() => {
-    process.exit(0);
-  });
-};
+    app.listen(config.port, () => {
+      console.log(`Server running on port ${config.port}`);
+      console.log(`Environment: ${config.nodeEnv}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+startServer();

@@ -1,68 +1,56 @@
-const { validationResult } = require('express-validator');
 const projectService = require('../services/projectService');
 
-const listProjects = async (req, res, next) => {
+const getProjects = async (req, res, next) => {
   try {
-    const data = await projectService.getProjects();
-    return res.json(data);
+    const projects = await projectService.getProjects();
+    res.json(projects);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
-const getProject = async (req, res, next) => {
+const getProjectById = async (req, res, next) => {
   try {
     const project = await projectService.getProjectById(req.params.id);
     if (!project) {
-      return res.status(404).json({ message: 'Proyecto no encontrado' });
+      return res.status(404).json({ error: 'Proyecto no encontrado' });
     }
-
-    return res.json(project);
+    res.json(project);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 const createProject = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const project = await projectService.createProject(req.body);
-    return res.status(201).json(project);
+    res.status(201).json(project);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 const updateProject = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const project = await projectService.updateProject(req.params.id, req.body);
-    return res.json(project);
+    res.json(project);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 const deleteProject = async (req, res, next) => {
   try {
     await projectService.deleteProject(req.params.id);
-    return res.status(204).send();
+    res.status(204).send();
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };
 
 module.exports = {
-  listProjects,
-  getProject,
+  getProjects,
+  getProjectById,
   createProject,
   updateProject,
   deleteProject

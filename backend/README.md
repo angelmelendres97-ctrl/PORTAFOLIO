@@ -1,96 +1,114 @@
-# AGX Portfolio Backend
+# Angel Melendres - Backend
 
-API REST construida con Express para gestionar la información del portafolio personal y proveer endpoints seguros para el panel administrativo.
+API REST construida con Node.js + Express para el portafolio profesional.
 
-## Características principales
+## Características
 
-- **Autenticación JWT** basada en credenciales definidas en variables de entorno.
-- **Gestión de proyectos** con CRUD completo y validaciones.
-- **Gestión de configuración del sitio** (hero, contacto y enlaces sociales).
-- **Chat de contacto** con almacenamiento en Supabase o memoria según la configuración disponible.
-- **Integración opcional con Supabase** mediante la API REST nativa.
-- **Arquitectura modular** separando rutas, controladores, servicios y middlewares.
+- Autenticación JWT para el panel administrativo
+- Base de datos PostgreSQL
+- Endpoints RESTful para proyectos, configuración y mensajes
+- Validación de datos con express-validator
+- Manejo de errores centralizado
+- Soporte para imágenes en Base64
 
-## Requisitos previos
+## Requisitos
 
 - Node.js 18+
-- Cuenta y proyecto en [Supabase](https://supabase.com/) (opcional para esta fase).
+- PostgreSQL 16+
 
-## Variables de entorno
-
-Crea un archivo `.env` a partir de `.env.example` con tus valores personalizados:
-
-```env
-PORT=4000
-NODE_ENV=development
-JWT_SECRET=super-secret-change-me
-JWT_EXPIRES_IN=2h
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=changeme123
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
-SUPABASE_ANON_KEY=
-SUPABASE_PROJECTS_TABLE=projects
-SUPABASE_CONFIG_TABLE=site_config
-SUPABASE_CHAT_TABLE=chat_messages
-```
-
-> **Nota:** En producción se recomienda almacenar `ADMIN_PASSWORD` como hash bcrypt y validar contra la base de datos.
-
-## Instalación y ejecución
+## Instalación
 
 ```bash
 npm install
+npm run db:init
 npm run dev
 ```
 
-El servidor quedará disponible en `http://localhost:4000`.
+El servidor se ejecutará en `http://localhost:4000`.
 
-### Endpoints
+## Variables de Entorno
 
-| Método | Ruta | Descripción |
-| --- | --- | --- |
-| `POST` | `/api/auth/login` | Autenticación y obtención de token JWT. |
-| `GET` | `/api/projects` | Lista de proyectos públicos. |
-| `GET` | `/api/projects/:id` | Detalle de un proyecto. |
-| `POST` | `/api/projects` | Crear proyecto (requiere token). |
-| `PUT` | `/api/projects/:id` | Actualizar proyecto (requiere token). |
-| `DELETE` | `/api/projects/:id` | Eliminar proyecto (requiere token). |
-| `GET` | `/api/config` | Configuración pública del sitio. |
-| `PUT` | `/api/config` | Actualizar configuración (requiere token). |
-| `GET` | `/api/chat` | Listado de mensajes (requiere token). |
-| `POST` | `/api/chat` | Crear mensaje público del chat. |
+```env
+NODE_ENV=development
+PORT=4000
 
-## Integración con Supabase
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRES_IN=2h
 
-La capa de servicios verifica automáticamente si existen las variables `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`. De estar presentes, las operaciones se ejecutan contra las tablas REST. En caso contrario, se utiliza un almacenamiento en memoria útil para desarrollo local.
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=changeme123
 
-Tablas sugeridas:
-
-- `projects`
-- `site_config`
-- `chat_messages`
-
-Consulta la documentación oficial de Supabase para la definición de columnas.
-
-## Estructura de carpetas
-
-```text
-src/
-  app.js
-  server.js
-  config/
-  controllers/
-  middlewares/
-  models/
-  routes/
-  services/
-  utils/
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=agxport
+PGUSER=postgres
+PGPASSWORD=postgres
 ```
 
-## Próximos pasos
+## Scripts
 
-- Persistir usuarios administradores en Supabase y encriptar contraseñas.
-- Implementar pruebas automatizadas.
-- Configurar despliegue continuo.
-- Añadir paginación y filtros avanzados a los listados de proyectos.
+- `npm run dev`: Inicia el servidor en modo desarrollo
+- `npm run db:init`: Inicializa las tablas de la base de datos
+- `npm run db:seed`: Inserta datos de ejemplo
+
+## Endpoints
+
+### Autenticación
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Inicia sesión y devuelve token JWT |
+
+### Proyectos
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/projects` | Lista todos los proyectos |
+| GET | `/api/projects/:id` | Obtiene un proyecto por ID |
+| POST | `/api/projects` | Crea un nuevo proyecto (requiere auth) |
+| PUT | `/api/projects/:id` | Actualiza un proyecto (requiere auth) |
+| DELETE | `/api/projects/:id` | Elimina un proyecto (requiere auth) |
+
+### Configuración
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/config` | Obtiene la configuración del sitio |
+| PUT | `/api/config` | Actualiza la configuración (requiere auth) |
+
+### Chat/Mensajes
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/chat` | Lista todos los mensajes (requiere auth) |
+| POST | `/api/chat` | Envía un nuevo mensaje |
+
+### Sistema
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/health` | Verificación de estado del servidor |
+
+## Estructura
+
+```
+src/
+├── config/         # Configuración (env.js)
+├── database/       # Conexión y esquemas de BD
+├── controllers/    # Controladores
+├── routes/         # Rutas API
+├── services/       # Lógica de negocio
+├── middlewares/    # Middlewares (auth, error)
+└── app.js         # Configuración de Express
+```
+
+## Tecnologías
+
+- Node.js
+- Express
+- PostgreSQL (pg)
+- JWT (jsonwebtoken)
+- Express Validator
+- Helmet
+- Morgan
+- CORS
+- UUID
+
+---
+
+Para más información, consulta el README principal del proyecto.

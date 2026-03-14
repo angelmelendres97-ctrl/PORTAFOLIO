@@ -19,7 +19,7 @@ services:
 
   backend:
     build:
-      context: ./Backend2
+      context: ./backend
       dockerfile: Dockerfile
     container_name: agxport-backend
     restart: unless-stopped
@@ -38,7 +38,7 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - ./Backend2:/app
+      - ./backend:/app
       - /app/node_modules
     depends_on:
       postgres:
@@ -54,9 +54,6 @@ services:
       VITE_API_URL: http://localhost:4000/api
     ports:
       - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     depends_on:
       - backend
 

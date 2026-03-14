@@ -1,19 +1,9 @@
-const { Router } = require('express');
-const { body } = require('express-validator');
+const express = require('express');
+const router = express.Router();
 const chatController = require('../controllers/chatController');
-const authenticateToken = require('../middlewares/authMiddleware');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-const router = Router();
-
-router.get('/', authenticateToken, chatController.listMessages);
-router.post(
-  '/',
-  [
-    body('name').isLength({ min: 2 }).withMessage('El nombre es obligatorio'),
-    body('email').isEmail().withMessage('Email inválido'),
-    body('message').isLength({ min: 5 }).withMessage('El mensaje es obligatorio')
-  ],
-  chatController.createMessage
-);
+router.get('/', authMiddleware, chatController.getMessages);
+router.post('/', chatController.addMessage);
 
 module.exports = router;

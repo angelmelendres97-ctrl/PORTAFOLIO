@@ -1,32 +1,34 @@
 const { v4: uuid } = require('uuid');
-const { hasValidSupabaseConfig, supabaseFetch } = require('../utils/supabaseClient');
-const { projects } = require('../models/inMemoryStore');
-const config = require('../config/env');
-
-const selectClause = 'id,title,summary,description,technologies,repositoryUrl,demoUrl,media,featured,createdAt,updatedAt';
+const { query } = require('../database/pool');
 
 const normalizeProject = (project) => ({
-  ...project,
+  id: project.id,
+  title: project.title,
+  summary: project.summary,
+  description: project.description,
+  detailedDescription: project.detailed_description,
   technologies: project.technologies || [],
-  media: project.media || {}
+  repositoryUrl: project.repository_url,
+  demoUrl: project.demo_url,
+  media: project.media || {},
+  featured: project.featured || false,
+  createdAt: project.created_at,
+  updatedAt: project.updated_at
 });
 
 const getProjects = async () => {
-  if (!hasValidSupabaseConfig()) {
-    return projects.map(normalizeProject);
-  }
-
-  const data = await supabaseFetch(`${config.supabase.projectTable}?select=${selectClause}`);
-  return data.map(normalizeProject);
+  const result = await query(
+    'SELECT id, title, summary, description, detailed_description, technologies, repository_url, demo_url, media, featured, created_at, updated_at FROM projects ORDER BY created_at DESC'
+  );
+  return result.rows.map(normalizeProject);
 };
 
 const getProjectById = async (id) => {
-  if (!hasValidSupabaseConfig()) {
-    return projects.find((project) => project.id === id) || null;
-  }
-
-  const data = await supabaseFetch(`${config.supabase.projectTable}?id=eq.${id}&select=${selectClause}`);
-  return data[0] ? normalizeProject(data[0]) : null;
+  const result = await query(
+    'SELECT id, title, summary, description, detailed_description, technologies, repository_url, demo_url, media, featured, created_at, updated_at FROM projects WHERE id = $1',
+    [id]
+  );
+  return result.rows[0] ? normalizeProject(result.rows[0]) : null;
 };
 
 const createProject = async (payload) => {
@@ -35,26 +37,37 @@ const createProject = async (payload) => {
     title: payload.title,
     summary: payload.summary,
     description: payload.description,
+    detailedDescription: payload.detailedDescription || '',
     technologies: payload.technologies || [],
     repositoryUrl: payload.repositoryUrl || null,
     demoUrl: payload.demoUrl || null,
     media: payload.media || {},
     featured: Boolean(payload.featured),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 
-  if (!hasValidSupabaseConfig()) {
-    projects.push(newProject);
-    return newProject;
-  }
+  const result = await query(
+    `INSERT INTO projects (id, title, summary, description, detailed_description, technologies, repository_url, demo_url, media, featured, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     RETURNING id, title, summary, description, detailed_description, technologies, repository_url, demo_url, media, featured, created_at, updated_at`,
+    [
+      newProject.id,
+      newProject.title,
+      newProject.summary,
+      newProject.description,
+      newProject.detailedDescription,
+      newProject.technologies,
+      newProject.repositoryUrl,
+      newProject.demoUrl,
+      JSON.stringify(newProject.media),
+      newProject.featured,
+      newProject.createdAt,
+      newProject.updatedAt
+    ]
+  );
 
-  const inserted = await supabaseFetch(config.supabase.projectTable, {
-    method: 'POST',
-    body: JSON.stringify([newProject])
-  });
-
-  return inserted?.[0] || newProject;
+  return normalizeProject(result.rows[0]);
 };
 
 const updateProject = async (id, payload) => {
@@ -70,21 +83,29 @@ const updateProject = async (id, payload) => {
     ...payload,
     technologies: payload.technologies || existing.technologies,
     media: payload.media || existing.media,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date()
   };
 
-  if (!hasValidSupabaseConfig()) {
-    const index = projects.findIndex((project) => project.id === id);
-    projects[index] = updated;
-    return updated;
-  }
+  const result = await query(
+    `UPDATE projects SET title = $1, summary = $2, description = $3, detailed_description = $4, technologies = $5, repository_url = $6, demo_url = $7, media = $8, featured = $9, updated_at = $10
+     WHERE id = $11
+     RETURNING id, title, summary, description, detailed_description, technologies, repository_url, demo_url, media, featured, created_at, updated_at`,
+    [
+      updated.title,
+      updated.summary,
+      updated.description,
+      updated.detailedDescription,
+      updated.technologies,
+      updated.repositoryUrl,
+      updated.demoUrl,
+      JSON.stringify(updated.media),
+      updated.featured,
+      updated.updatedAt,
+      id
+    ]
+  );
 
-  const response = await supabaseFetch(`${config.supabase.projectTable}?id=eq.${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(updated)
-  });
-
-  return response?.[0] || updated;
+  return normalizeProject(result.rows[0]);
 };
 
 const deleteProject = async (id) => {
@@ -95,16 +116,7 @@ const deleteProject = async (id) => {
     throw error;
   }
 
-  if (!hasValidSupabaseConfig()) {
-    const index = projects.findIndex((project) => project.id === id);
-    projects.splice(index, 1);
-    return { success: true };
-  }
-
-  await supabaseFetch(`${config.supabase.projectTable}?id=eq.${id}`, {
-    method: 'DELETE'
-  });
-
+  await query('DELETE FROM projects WHERE id = $1', [id]);
   return { success: true };
 };
 

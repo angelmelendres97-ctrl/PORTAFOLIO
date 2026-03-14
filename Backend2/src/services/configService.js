@@ -5,6 +5,7 @@ const normalizeConfig = (config) => ({
   heroTitle: config.hero_title,
   heroSubtitle: config.hero_subtitle,
   about: config.about,
+  profileImage: config.profile_image,
   contactEmail: config.contact_email,
   whatsappNumber: config.whatsapp_number,
   githubUrl: config.github_url,
@@ -16,7 +17,7 @@ const normalizeConfig = (config) => ({
 
 const getConfig = async () => {
   const result = await query(
-    'SELECT id, hero_title, hero_subtitle, about, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at FROM site_config LIMIT 1'
+    'SELECT id, hero_title, hero_subtitle, about, profile_image, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at FROM site_config LIMIT 1'
   );
   
   if (result.rows.length === 0) {
@@ -24,6 +25,7 @@ const getConfig = async () => {
       heroTitle: 'Bienvenido a mi Portafolio',
       heroSubtitle: 'Desarrollador Full Stack',
       about: '',
+      profileImage: '',
       contactEmail: ''
     };
   }
@@ -36,13 +38,14 @@ const updateConfig = async (payload) => {
   
   if (existing.rows.length === 0) {
     const result = await query(
-      `INSERT INTO site_config (hero_title, hero_subtitle, about, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
-       RETURNING id, hero_title, hero_subtitle, about, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at`,
+      `INSERT INTO site_config (hero_title, hero_subtitle, about, profile_image, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+       RETURNING id, hero_title, hero_subtitle, about, profile_image, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at`,
       [
         payload.heroTitle || '',
         payload.heroSubtitle || '',
         payload.about || '',
+        payload.profileImage || '',
         payload.contactEmail || '',
         payload.whatsappNumber || '',
         payload.githubUrl || '',
@@ -58,18 +61,20 @@ const updateConfig = async (payload) => {
       hero_title = COALESCE($1, hero_title),
       hero_subtitle = COALESCE($2, hero_subtitle),
       about = COALESCE($3, about),
-      contact_email = COALESCE($4, contact_email),
-      whatsapp_number = COALESCE($5, whatsapp_number),
-      github_url = COALESCE($6, github_url),
-      linkedin_url = COALESCE($7, linkedin_url),
-      resume_url = COALESCE($8, resume_url),
+      profile_image = COALESCE($4, profile_image),
+      contact_email = COALESCE($5, contact_email),
+      whatsapp_number = COALESCE($6, whatsapp_number),
+      github_url = COALESCE($7, github_url),
+      linkedin_url = COALESCE($8, linkedin_url),
+      resume_url = COALESCE($9, resume_url),
       updated_at = NOW()
-     WHERE id = $9
-     RETURNING id, hero_title, hero_subtitle, about, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at`,
+     WHERE id = $10
+     RETURNING id, hero_title, hero_subtitle, about, profile_image, contact_email, whatsapp_number, github_url, linkedin_url, resume_url, created_at, updated_at`,
     [
       payload.heroTitle,
       payload.heroSubtitle,
       payload.about,
+      payload.profileImage,
       payload.contactEmail,
       payload.whatsappNumber,
       payload.githubUrl,

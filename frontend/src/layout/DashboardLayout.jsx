@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import useAuth from '../hooks/useAuth.js';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 
 const DashboardLayout = ({ children }) => {
   const { logout, user } = useAuth();
@@ -14,18 +15,19 @@ const DashboardLayout = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-900">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+      <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Link to="/" className="text-lg font-semibold text-primary">
-            AGX Panel
+            Angel Melendres Panel
           </Link>
-          <div className="flex items-center gap-4 text-sm text-slate-300">
-            <span>{user?.email}</span>
+          <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
+            <ThemeToggle />
+            <span className="hidden sm:inline">{user?.email}</span>
             <button
               type="button"
               onClick={logout}
-              className="rounded-md border border-slate-700 px-3 py-1 transition hover:bg-slate-800"
+              className="rounded-md border border-slate-300 dark:border-slate-700 px-3 py-1 text-slate-700 dark:text-slate-300 transition hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               Cerrar sesión
             </button>
@@ -42,7 +44,7 @@ const DashboardLayout = ({ children }) => {
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                   location.pathname === item.to
                     ? 'bg-primary/20 text-primary'
-                    : 'bg-slate-900 text-slate-300 hover:bg-slate-800'
+                    : 'bg-slate-200 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-800'
                 }`}
               >
                 {item.label}

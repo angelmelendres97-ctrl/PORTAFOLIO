@@ -5,6 +5,11 @@ export const fetchProjects = async () => {
   return data;
 };
 
+export const fetchProjectById = async (id) => {
+  const { data } = await api.get(`/projects/${id}`);
+  return data;
+};
+
 export const fetchSiteConfig = async () => {
   const { data } = await api.get('/config');
   return data;

@@ -51,11 +51,21 @@ services:
     container_name: agxport-frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://localhost:4000/api
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:4000/api}
     ports:
       - "5173:5173"
     depends_on:
       - backend
+
+  # Cloudflare Tunnel (descomenta y configura para producción)
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: agxport-tunnel
+  #   restart: unless-stopped
+  #   command: tunnel run --token TU_TOKEN
+  #   depends_on:
+  #     - frontend
+  #     - backend
 
 volumes:
   postgres_data:
